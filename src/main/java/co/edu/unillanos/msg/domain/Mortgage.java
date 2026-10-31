@@ -11,9 +11,10 @@ import java.util.Objects;
 public final class Mortgage {
 
     private static final BigDecimal WEEKS_PER_YEAR = new BigDecimal("52");
+    private static final BigDecimal MAX_COUPLE_CONTRIBUTION_PERCENTAGE = new BigDecimal("0.28");
+    private static final BigDecimal ZERO = new BigDecimal("0.00").setScale(2, RoundingMode.HALF_EVEN);
 
-    // TODO (RN4): declare aquí, una sola vez y con nombre, el porcentaje máximo
-    //             del ingreso que aporta la pareja (28 %).
+    
 
     private final String mortgageNumber;
     private final BigDecimal weeklyPrincipalAndInterest;
@@ -34,6 +35,9 @@ public final class Mortgage {
         this.coupleWeeklyIncome = Objects.requireNonNull(coupleWeeklyIncome);
         // TODO (R6): rechazar con IllegalArgumentException un ingreso semanal
         //            de la pareja menor o igual a cero.
+        if (coupleWeeklyIncome.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El ingreso semanal no puede ser negativo");
+        }
     }
 
     public String mortgageNumber() {
@@ -48,21 +52,27 @@ public final class Mortgage {
 
     /** RN3: capital e intereses más el costo semanal de impuesto y seguro. */
     public BigDecimal totalWeeklyPayment() {
-        throw new UnsupportedOperationException("TODO");
+        return weeklyPrincipalAndInterest.add(weeklyEscrow());
     }
 
-    /** RN4: lo máximo que la pareja aporta por semana. */
+    // RN4: La pareja aporta como máximo el 28 % de su ingreso semanal bruto.
     public BigDecimal maxCoupleContribution() {
-        throw new UnsupportedOperationException("TODO");
+        return coupleWeeklyIncome.multiply(MAX_COUPLE_CONTRIBUTION_PERCENTAGE)
+                .setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    /** RN5: lo que cubre la fundación; nunca es negativo. */
+    // RN5: El subsidio semanal de la fundación es la cuota total menos el máximo que aporta la pareja; si da negativo, es cero.
     public BigDecimal weeklyGrant() {
-        throw new UnsupportedOperationException("TODO");
+        BigDecimal grant = totalWeeklyPayment().subtract(maxCoupleContribution());
+        if (grant.compareTo(BigDecimal.ZERO) < 0) {
+            return ZERO;
+        }
+        return grant.setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    /** Lo que paga la pareja: cuota total menos subsidio. */
+    // Aporte real de la pareja: cuota total menos el subsidio
     public BigDecimal weeklyCoupleContribution() {
-        throw new UnsupportedOperationException("TODO");
+        BigDecimal contribution = totalWeeklyPayment().subtract(weeklyGrant());
+        return contribution.setScale(2, RoundingMode.HALF_EVEN);
     }
 }

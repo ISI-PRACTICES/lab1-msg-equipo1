@@ -1,6 +1,7 @@
 package co.edu.unillanos.msg.domain;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
@@ -21,6 +22,6 @@ public final class OperatingExpenses {
 
     /** RN7: gasto anual repartido igual entre 52 semanas, con 2 decimales. */
     public BigDecimal weeklyAmount() {
-        throw new UnsupportedOperationException("TODO");
+        return annualAmount.divide(new BigDecimal("52"), 2, RoundingMode.HALF_UP);
     }
 }

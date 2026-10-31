@@ -1,6 +1,7 @@
 package co.edu.unillanos.msg.domain;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
@@ -36,6 +37,6 @@ public final class Investment {
 
     /** RN6: rendimiento anual esperado / 52, en dólares con 2 decimales. */
     public BigDecimal weeklyReturn() {
-        throw new UnsupportedOperationException("TODO");
+        return annualExpectedReturn.divide(new BigDecimal("52"), 2, RoundingMode.HALF_UP);
     }
 }
